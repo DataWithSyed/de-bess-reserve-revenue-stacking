@@ -1,0 +1,159 @@
+{
+  "eval_period": [
+    "2025-11-01",
+    "2026-10-31"
+  ],
+  "n_days": 365,
+  "runtime_s": 29.5,
+  "base": {
+    "base_1h": {
+      "pf_da": 47896.0,
+      "pf_da_afrr": 186998.0,
+      "pf_da_fcr": 156775.0,
+      "pf_fcr": 148885.0,
+      "pf_stack": 215243.0,
+      "pf_stack_avg": 176979.0,
+      "xa_da": 36366.0,
+      "xa_da_fcr": 150523.0,
+      "xa_stack": 144300.0,
+      "xa_stack_pfda": 146384.0,
+      "xa_da_fcr_capture_of_pf_da_fcr_pct": 96.0,
+      "xa_stack_capture_pct": 67.0,
+      "xa_stack_capture_of_pf_avg_pct": 81.5,
+      "xa_stack_vs_pf_da_pct": 301.3,
+      "xa_stack_vs_xa_da_pct": 396.8
+    },
+    "base_2h": {
+      "pf_da": 85129.0,
+      "pf_da_afrr": 275838.0,
+      "pf_da_fcr": 173118.0,
+      "pf_fcr": 148885.0,
+      "pf_stack": 281692.0,
+      "pf_stack_avg": 214220.0,
+      "xa_da": 67281.0,
+      "xa_da_fcr": 156806.0,
+      "xa_stack": 147879.0,
+      "xa_stack_pfda": 152418.0,
+      "xa_da_fcr_capture_of_pf_da_fcr_pct": 90.6,
+      "xa_stack_capture_pct": 52.5,
+      "xa_stack_capture_of_pf_avg_pct": 69.0,
+      "xa_stack_vs_pf_da_pct": 173.7,
+      "xa_stack_vs_xa_da_pct": 219.8
+    },
+    "base_4h": {
+      "pf_da": 138134.0,
+      "pf_da_afrr": 303746.0,
+      "pf_da_fcr": 200090.0,
+      "pf_fcr": 148885.0,
+      "pf_stack": 305066.0,
+      "pf_stack_avg": 239377.0,
+      "xa_da": 113583.0,
+      "xa_da_fcr": 171503.0,
+      "xa_stack": 164732.0,
+      "xa_stack_pfda": 172982.0,
+      "xa_da_fcr_capture_of_pf_da_fcr_pct": 85.7,
+      "xa_stack_capture_pct": 54.0,
+      "xa_stack_capture_of_pf_avg_pct": 68.8,
+      "xa_stack_vs_pf_da_pct": 119.3,
+      "xa_stack_vs_xa_da_pct": 145.0
+    }
+  },
+  "ex_ante_allocation": {
+    "base_1h": {
+      "afrr_pos_offered_mwh": 1141.091,
+      "afrr_pos_accepted_mwh": 431.504,
+      "afrr_neg_offered_mwh": 770.582,
+      "afrr_neg_accepted_mwh": 371.473,
+      "fcr_mw_avg": 0.762,
+      "afrr_pos_mw_avg": 0.049,
+      "afrr_neg_mw_avg": 0.042,
+      "afrr_pos_acceptance": 0.378,
+      "afrr_neg_acceptance": 0.482
+    },
+    "base_2h": {
+      "afrr_pos_offered_mwh": 2937.835,
+      "afrr_pos_accepted_mwh": 1256.901,
+      "afrr_neg_offered_mwh": 2662.026,
+      "afrr_neg_accepted_mwh": 1158.106,
+      "fcr_mw_avg": 0.51,
+      "afrr_pos_mw_avg": 0.143,
+      "afrr_neg_mw_avg": 0.132,
+      "afrr_pos_acceptance": 0.428,
+      "afrr_neg_acceptance": 0.435
+    },
+    "base_4h": {
+      "afrr_pos_offered_mwh": 3445.773,
+      "afrr_pos_accepted_mwh": 1576.252,
+      "afrr_neg_offered_mwh": 3231.845,
+      "afrr_neg_accepted_mwh": 1351.974,
+      "fcr_mw_avg": 0.379,
+      "afrr_pos_mw_avg": 0.18,
+      "afrr_neg_mw_avg": 0.154,
+      "afrr_pos_acceptance": 0.457,
+      "afrr_neg_acceptance": 0.418
+    }
+  },
+  "sensitivity_2h": {
+    "base_2h": {
+      "pf_stack": 281692.2,
+      "pf_stack_avg": 214219.7,
+      "xa_stack": 147879.4,
+      "capture_pct": 52.5
+    },
+    "cycles_1": {
+      "pf_stack": 281644.2,
+      "pf_stack_avg": 213931.4,
+      "xa_stack": 148090.9,
+      "capture_pct": 52.6
+    },
+    "cycles_1.5": {
+      "pf_stack": 281690.3,
+      "pf_stack_avg": 214191.8,
+      "xa_stack": 147914.4,
+      "capture_pct": 52.5
+    },
+    "deg_0": {
+      "pf_stack": 283812.1,
+      "pf_stack_avg": 218023.8,
+      "xa_stack": 154072.5,
+      "capture_pct": 54.3
+    },
+    "deg_25": {
+      "pf_stack": 279805.3,
+      "pf_stack_avg": 210521.7,
+      "xa_stack": 142349.9,
+      "capture_pct": 50.9
+    },
+    "e_afrr_0.25": {
+      "pf_stack": 300245.0,
+      "pf_stack_avg": 227102.3,
+      "xa_stack": 148110.8,
+      "capture_pct": 49.3
+    },
+    "e_afrr_0.5": {
+      "pf_stack": 296912.3,
+      "pf_stack_avg": 223056.5,
+      "xa_stack": 148059.0,
+      "capture_pct": 49.9
+    },
+    "e_fcr_0.5": {
+      "pf_stack": 279722.3,
+      "pf_stack_avg": 211689.6,
+      "xa_stack": 143825.8,
+      "capture_pct": 51.4
+    }
+  },
+  "da_price_stats": {
+    "mean": 111.26,
+    "std": 67.52,
+    "n_negative_qh": 1860,
+    "n_qh": 35040
+  },
+  "reserve_price_means_eur_mw_h": {
+    "fcr_eur_mw_h": 17.0,
+    "afrr_pos_avg": 10.96,
+    "afrr_pos_marg": 15.22,
+    "afrr_neg_avg": 12.46,
+    "afrr_neg_marg": 17.7
+  }
+}

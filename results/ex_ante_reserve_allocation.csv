@@ -1,0 +1,4 @@
+case,afrr_pos_offered_mwh,afrr_pos_accepted_mwh,afrr_neg_offered_mwh,afrr_neg_accepted_mwh,fcr_mw_avg,afrr_pos_mw_avg,afrr_neg_mw_avg,afrr_pos_acceptance,afrr_neg_acceptance
+base_1h,1141.091,431.504,770.582,371.473,0.762,0.049,0.042,0.378,0.482
+base_2h,2937.835,1256.901,2662.026,1158.106,0.51,0.143,0.132,0.428,0.435
+base_4h,3445.773,1576.252,3231.845,1351.974,0.379,0.18,0.154,0.457,0.418
