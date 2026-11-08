@@ -14,8 +14,8 @@ capacity auction (6 × 4-hour products a day). Each day is solved as a linear pr
 
 ## Key results (1 MW, k EUR per MW per year, 1 Nov 2025 to 31 Oct 2026)
 
-The first four rows only use information available at the time of each decision (shaded bars in
-the figure). The last four rows are perfect-foresight (PF) upper bounds.
+The first five rows only use information available at the time of each decision (shaded bars in
+the figure; the calibrated-bidding row is shown in figure 4). The last four rows are perfect-foresight (PF) upper bounds.
 
 | Strategy | 1 h | 2 h | 4 h |
 |---|---:|---:|---:|
@@ -23,6 +23,7 @@ the figure). The last four rows are perfect-foresight (PF) upper bounds.
 | FCR only (offer full power every block, no forecast needed) | 148.9 | 148.9 | 148.9 |
 | **DA + FCR, ex-ante** | **150.5** | **156.8** | **171.5** |
 | DA + FCR + aFRR, ex-ante (pay-as-bid shading on 28-day history) | 144.3 | 147.9 | 164.7 |
+| DA + FCR + aFRR, ex-ante, calibrated bidding (90 % quantile bid, recalibrated P(accept), 7-day FCR forecast; [bidding study](#why-the-ex-ante-afrr-stack-loses-bidding-study)) | 150.5 | 159.3 | 175.0 |
 | DA only, PF | 47.9 | 85.1 | 138.1 |
 | DA + FCR, PF | 156.8 | 173.1 | 200.1 |
 | Full stack, PF, aFRR paid the average awarded price | 177.0 | 214.2 | 239.4 |
@@ -36,7 +37,8 @@ What the year shows:
   earned 148.9 k EUR/MW. That is 2.2× (2 h) to 4.1× (1 h) what ex-ante day-ahead arbitrage alone earned.
   FCR averaged 17.0 EUR/MW/h over the year, and from April to September 2026 it ran at 21–24 EUR/MW/h
   (figure 2).
-* **Ex-ante DA + FCR is the best realisable strategy for every duration.** It earns 150.5 / 156.8 / 171.5
+* **Ex-ante DA + FCR is the best realisable strategy of the original backtest** (the bidding study adds a
+  calibrated full stack that edges past it by 0.0 / 2.4 / 3.5 k EUR/MW). It earns 150.5 / 156.8 / 171.5
   k EUR/MW, which is 96 / 91 / 86 % of its own perfect-foresight bound. Arbitrage adds more as duration grows:
   +1.6 k EUR over FCR-only at 1 h, +22.6 k at 4 h.
 * **aFRR holds most of the theoretical upside but none of the realised gain.** With perfect foresight,
@@ -44,9 +46,8 @@ What the year shows:
   opposite. It bids each aFRR product at the price that maximises bid × P(accepted) on the past 28 days of
   marginal prices (pay-as-bid). Only 43 % of the offered aFRR MWh were accepted (2 h). Compared with ex-ante
   DA + FCR, FCR income fell by 47.6 k EUR while aFRR brought in only 38.4 k. The full ex-ante stack therefore
-  earns 6–9 k EUR/MW *less* than ex-ante DA + FCR. The likely causes, not tested separately here: acceptance
-  probabilities estimated on history are optimistic, and aFRR gets chosen when the naive FCR forecast is low
-  (selection bias). Capturing aFRR value is a bid-price forecasting problem, not a scheduling one.
+  earns 6–9 k EUR/MW *less* than ex-ante DA + FCR. The [bidding study](#why-the-ex-ante-afrr-stack-loses-bidding-study)
+  below tests the two suspected causes (both confirmed) and a non-anticipative fix that turns the loss into a small gain.
 * **Foresight losses, 2 h battery.** Of the 133.8 k EUR gap between the full PF stack (281.7 k) and the
   ex-ante stack (147.9 k), 4.5 k comes from the DA forecast (147.9 → 152.4 k with ex-ante reserves but
   perfect DA prices). The rest comes from reserve-market foresight: which product to offer, and at what bid.
@@ -59,6 +60,51 @@ What the year shows:
 ![Monthly revenue and reserve prices](figures/02_monthly_revenue_and_reserve_prices.png)
 
 ![Sensitivity](figures/03_sensitivity_2h.png)
+
+## Why the ex-ante aFRR stack loses (bidding study)
+
+`scripts/run_bid_study.py` and `src/stack/bidding.py` (added 8 Nov 2026) re-run the ex-ante strategy with
+ten bidding/forecast rules, for all three durations and the same 365 days. Every rule uses only prices and
+auction results up to D-1. The two base rules reproduce the original backtest exactly (unit test).
+Differences are given against ex-ante DA + FCR, with a 95 % moving-block bootstrap CI (7-day blocks,
+2,000 resamples).
+
+**Cause 1, optimistic acceptance probabilities: confirmed.** On all 4,380 aFRR block-direction auctions,
+the base rule predicted an average acceptance of 72.4 % and realised 56.7 %. It was optimistic in every
+probability bin: bids it rated at 0.96 were accepted 80 % of the time, bids rated 0.71 only 52 %
+(`results/bid_study_calibration.csv`, right panel below). Bidding at the 90 % quantile of the last 28 days'
+marginal prices is better calibrated, but still optimistic: 93 % predicted, 82 % realised.
+
+**Cause 2, selection bias in the FCR forecast: confirmed, but small.** In the 2 h base stack, the blocks where
+stage 1 preferred aFRR to FCR had an FCR forecast 1.02 EUR/MW/h *below* the realised price on average. Blocks
+that stayed in FCR had a forecast 0.74 EUR/MW/h *above* it (`results/bid_study_selection_bias.csv`).
+
+**Fixes, 2 h battery (k EUR/MW/yr; ex-ante DA + FCR = 156.8):**
+
+| Ex-ante rule | Total | vs DA + FCR | 95 % CI | Nov–Apr | May–Oct | aFRR acceptance |
+|---|---:|---:|---|---:|---:|---:|
+| Base stack (max bid × P on 28-day history) | 147.9 | −8.9 | −14.4 … −4.0 | −2.8 | −6.1 | 43 % |
+| + 7-day-mean FCR forecast | 148.4 | −8.4 | −13.6 … −3.7 | −3.2 | −5.2 | 43 % |
+| + P(accept) recalibrated on the last 28 days' outcomes | 151.0 | −5.8 | −10.4 … −1.3 | −1.8 | −4.0 | 38 % |
+| Bid at the 90 % quantile instead | 157.3 | +0.5 | −2.8 … +3.7 | +1.7 | −1.3 | 70 % |
+| **90 % quantile + recalibration + 7-day FCR forecast** | **159.3** | **+2.4** | −0.1 … +5.1 | +2.1 | +0.4 | 69 % |
+| Hurdle 1.5× on aFRR value + recalibration + 7-day FCR | 154.0 | −2.8 | −5.3 … −0.7 | −1.0 | −1.8 | 35 % |
+
+The same combined rule gives +0.0 k at 1 h (CI −1.2 … +1.2) and **+3.5 k at 4 h (CI +0.1 … +6.8)**. All
+ten rules × three durations are in `results/bid_study_annual.csv`.
+
+![Ex-ante bidding rules](figures/04_ex_ante_bidding_rules.png)
+
+What this means:
+
+* The loss in the original ex-ante stack came from **bidding**, not from the schedule. With acceptance
+  probabilities calibrated against realised auctions, it disappears at every duration.
+* Even so, **aFRR adds little on top of a well-run DA + FCR strategy**: +2.4 k EUR/MW at 2 h and +3.5 k at
+  4 h, with CIs that touch zero. The +41–109 k EUR/MW of perfect-foresight aFRR value at 2 h (PF full stack vs PF DA + FCR) is still
+  out of reach for simple history-based bidders.
+* **Caveat: the rule is chosen in-sample.** Ten rules were tested on one year and the best is reported. It is
+  positive in both half-years at 2 h and 4 h, but a live strategy would need out-of-sample validation on
+  later auctions.
 
 ## Method
 
@@ -117,19 +163,22 @@ bash scripts/run_all.sh        # fetch (~5 min), backtest (~30 s on 8 cores), fi
 python scripts/fetch_data.py reserve
 python scripts/run_backtest.py
 python scripts/make_figures.py
-python -m pytest -q            # 14 tests, synthetic inputs, no data needed
+python scripts/run_bid_study.py  # bidding study (~30 s on 8 cores, needs the fetched reserve data)
+python -m pytest -q            # 19 tests, synthetic inputs, no data needed
 ```
 Outputs: `results/summary.json` (all headline numbers), `results/annual_eur_per_mw.csv`,
 `results/daily_results.csv.gz` (per day × strategy × case), `results/ex_ante_reserve_allocation.csv`,
-`results/sensitivity_2h.csv`. A CI example is in `docs/ci_example.yml`.
+`results/sensitivity_2h.csv`, `results/bid_study_*.csv`. A CI example is in `docs/ci_example.yml`.
 
 ## Repository layout
 ```
 src/stack/data.py       Energy-Charts + regelleistung.net download and parsing
 src/stack/model.py      daily LP (DA + FCR + aFRR), settlement, pay-as-bid bid rule
 src/stack/backtest.py   PF and ex-ante strategies over the year
+src/stack/bidding.py    ex-ante bidding diagnostics (calibration, selection bias) and alternative rules
 scripts/                fetch, backtest + sensitivity grid, figures, run_all.sh
-tests/                  14 pytest checks (energy balance, headroom, dominance, DST, parsing, PF ≥ ex-ante)
+tests/                  19 pytest checks (energy balance, headroom, dominance, DST, parsing, PF ≥ ex-ante,
+                        bidding rules: non-anticipative calibration, reproduction of the base backtest)
 ```
 
 ## Limitations
@@ -141,8 +190,9 @@ tests/                  14 pytest checks (energy balance, headroom, dominance, D
 * **The DA LP is a relaxation.** It allows simultaneous charge and discharge, which can occur at negative
   prices. There is no intraday market, no 15-min intraday re-optimisation, and no grid fees or levies.
 * **Degradation** is a linear per-MWh cost, and SoC returns to 50 % every day (no multi-day optimisation).
-* **Ex-ante forecasts are deliberately simple** (naive D-1, 28-day empirical bid). Better forecasts would
-  raise the ex-ante numbers. That is the point of the PF bounds.
+* **Ex-ante forecasts are deliberately simple** (naive D-1, 28-day empirical bid; the bidding study adds a
+  7-day FCR mean and recalibrated quantile bids). Better forecasts would raise the ex-ante numbers. That is
+  the point of the PF bounds.
 * **Prequalification rules are simplified** (`e_FCR`, `e_aFRR`, symmetric FCR in 4-h blocks, aFRR in 4-h
   products from the German results). Check the current TSO product terms before relying on any number.
 * **One year**, on prices from an unusual year: FCR prices rose steeply in spring 2026. No inference beyond it.

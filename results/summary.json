@@ -155,5 +155,121 @@
     "afrr_pos_marg": 15.22,
     "afrr_neg_avg": 12.46,
     "afrr_neg_marg": 17.7
+  },
+  "bid_study": {
+    "reference": "xa_da_fcr (base)",
+    "bootstrap": "2000 moving-block resamples of 7-day blocks",
+    "annual_2h": {
+      "xa_da_fcr (base)": {
+        "total": 156806.0,
+        "diff": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "xa_stack (base)": {
+        "total": 147879.0,
+        "diff": -8927.0,
+        "ci95": [
+          -14381.0,
+          -4044.0
+        ]
+      },
+      "da_fcr, FCR fc = 7-day mean": {
+        "total": 156332.0,
+        "diff": -474.0,
+        "ci95": [
+          -1348.0,
+          223.0
+        ]
+      },
+      "stack, FCR fc = 7-day mean": {
+        "total": 148435.0,
+        "diff": -8371.0,
+        "ci95": [
+          -13566.0,
+          -3749.0
+        ]
+      },
+      "stack, recalibrated P(accept)": {
+        "total": 151023.0,
+        "diff": -5784.0,
+        "ci95": [
+          -10379.0,
+          -1260.0
+        ]
+      },
+      "stack, recalibrated + FCR 7-day": {
+        "total": 151852.0,
+        "diff": -4954.0,
+        "ci95": [
+          -9659.0,
+          -728.0
+        ]
+      },
+      "stack, quantile bid 80 %": {
+        "total": 156099.0,
+        "diff": -708.0,
+        "ci95": [
+          -4719.0,
+          3377.0
+        ]
+      },
+      "stack, quantile bid 90 %": {
+        "total": 157272.0,
+        "diff": 465.0,
+        "ci95": [
+          -2778.0,
+          3728.0
+        ]
+      },
+      "stack, quantile 90 % + FCR 7-day + recal.": {
+        "total": 159256.0,
+        "diff": 2449.0,
+        "ci95": [
+          -137.0,
+          5112.0
+        ]
+      },
+      "stack, hurdle 1.5x + FCR 7-day + recal.": {
+        "total": 154037.0,
+        "diff": -2769.0,
+        "ci95": [
+          -5281.0,
+          -719.0
+        ]
+      }
+    },
+    "calibration_all": {
+      "optimal (base)": {
+        "predicted": 0.724,
+        "realised": 0.567
+      },
+      "quantile 80 %": {
+        "predicted": 0.824,
+        "realised": 0.69
+      },
+      "quantile 90 %": {
+        "predicted": 0.931,
+        "realised": 0.816
+      }
+    },
+    "selection_bias_2h": [
+      {
+        "chose_afrr": false,
+        "n": 1279,
+        "mean_fcr_fc": 17.93,
+        "mean_fcr_real": 17.194,
+        "mean_fc_error": 0.736
+      },
+      {
+        "chose_afrr": true,
+        "n": 911,
+        "mean_fcr_fc": 15.697,
+        "mean_fcr_real": 16.718,
+        "mean_fc_error": -1.022
+      }
+    ]
   }
 }
