@@ -23,7 +23,8 @@ the figure; the calibrated-bidding row is shown in figure 4). The last four rows
 | FCR only (offer full power every block, no forecast needed) | 148.9 | 148.9 | 148.9 |
 | **DA + FCR, ex-ante** | **150.5** | **156.8** | **171.5** |
 | DA + FCR + aFRR, ex-ante (pay-as-bid shading on 28-day history) | 144.3 | 147.9 | 164.7 |
-| DA + FCR + aFRR, ex-ante, calibrated bidding (90 % quantile bid, recalibrated P(accept), 7-day FCR forecast; [bidding study](#why-the-ex-ante-afrr-stack-loses-bidding-study)) | 150.5 | 159.3 | 175.0 |
+| DA + FCR + aFRR, ex-ante, calibrated bidding (90 % quantile bid, recalibrated P(accept), 7-day FCR forecast; [bidding study](#why-the-ex-ante-afrr-stack-loses-bidding-study)). Rule chosen in-sample; the gain over DA + FCR fails the [validation](#does-the-best-rule-survive-validation) | 150.5 | 159.3 | 175.0 |
+| Same rule menu, picked walk-forward on trailing 56 days ([validation](#does-the-best-rule-survive-validation)) | 149.9 | 155.9 | 172.0 |
 | DA only, PF | 47.9 | 85.1 | 138.1 |
 | DA + FCR, PF | 156.8 | 173.1 | 200.1 |
 | Full stack, PF, aFRR paid the average awarded price | 177.0 | 214.2 | 239.4 |
@@ -38,7 +39,8 @@ What the year shows:
   FCR averaged 17.0 EUR/MW/h over the year, and from April to September 2026 it ran at 21–24 EUR/MW/h
   (figure 2).
 * **Ex-ante DA + FCR is the best realisable strategy of the original backtest** (the bidding study adds a
-  calibrated full stack that edges past it by 0.0 / 2.4 / 3.5 k EUR/MW). It earns 150.5 / 156.8 / 171.5
+  calibrated full stack that edges past it by 0.0 / 2.4 / 3.5 k EUR/MW, but that gain fails a search-corrected
+  test and walk-forward rule selection; see [validation](#does-the-best-rule-survive-validation)). It earns 150.5 / 156.8 / 171.5
   k EUR/MW, which is 96 / 91 / 86 % of its own perfect-foresight bound. Arbitrage adds more as duration grows:
   +1.6 k EUR over FCR-only at 1 h, +22.6 k at 4 h.
 * **aFRR holds most of the theoretical upside but none of the realised gain.** With perfect foresight,
@@ -103,8 +105,55 @@ What this means:
   4 h, with CIs that touch zero. The +41–109 k EUR/MW of perfect-foresight aFRR value at 2 h (PF full stack vs PF DA + FCR) is still
   out of reach for simple history-based bidders.
 * **Caveat: the rule is chosen in-sample.** Ten rules were tested on one year and the best is reported. It is
-  positive in both half-years at 2 h and 4 h, but a live strategy would need out-of-sample validation on
-  later auctions.
+  positive in both half-years at 2 h and 4 h. The [validation below](#does-the-best-rule-survive-validation)
+  checks it for data snooping and with walk-forward selection, and the gain does **not** survive.
+
+## Does the best rule survive validation?
+
+`scripts/run_rule_validation.py` and `src/stack/selection.py` (added 17 Nov 2026) re-use the committed daily
+table of the bidding study (`results/bid_study_daily.csv.gz`, 10 rules × 3 durations × 365 days). No new
+market data and no new LP runs are needed. Switching rules from day to day is valid on that table. Every rule's
+day-D decision uses only market data up to D-1, its acceptance recalibration scores its own *hypothetical*
+bids against published marginal prices, and the battery is back at 50 % SoC every night.
+
+**1. Data-snooping test.** Hansen's (2005) Superior Predictive Ability test asks whether *any* of the nine
+alternative rules beats ex-ante DA + FCR once the search over nine rules is accounted for (stationary bootstrap,
+mean block 7 days, 2,000 resamples; `results/rule_validation_spa.csv`):
+
+| Battery | Best rule's gain (k EUR/MW/yr) | p, best rule alone (no search correction) | p, SPA_c (corrected) | p, White Reality Check |
+|---|---:|---:|---:|---:|
+| 1 h | +0.0 | 0.45 | 0.66 | 0.89 |
+| 2 h | +2.4 | 0.069 | 0.16 | 0.22 |
+| 4 h | +3.5 | 0.034 | 0.12 | 0.13 |
+
+With a 14-day mean block, the SPA_c p-values are 0.78 / 0.26 / 0.17. On its own, the 4 h gain looks
+significant at 5 % (one-sided), which matches the bidding study's CI of +0.1 … +6.8. Once the search over
+nine rules is accounted for, it is not.
+
+**2. Walk-forward selection.** Each day, a trader picks the rule with the highest realised revenue over the
+trailing window, using days up to D-1 (lag 1). Lag 2 is a conservative check. The first 28 days default to
+DA + FCR (`results/rule_validation_walk_forward.csv`). Values are k EUR/MW/yr vs ex-ante DA + FCR, with a 95 %
+moving-block CI:
+
+| Trailing window | 1 h | 2 h | 4 h |
+|---|---|---|---|
+| 28 days | −0.5 (−1.6 … +0.6) | −0.5 (−2.7 … +1.9) | +1.3 (−1.3 … +3.9) |
+| 56 days | −0.6 (−1.7 … +0.4) | −0.9 (−2.4 … +0.5) | +0.5 (−1.7 … +2.5) |
+| 91 days | −0.4 (−1.1 … +0.3) | −1.1 (−2.5 … +0.1) | +0.8 (−1.2 … +2.8) |
+| expanding | −0.7 (−1.6 … +0.2) | +0.3 (−1.5 … +2.2) | +1.3 (−1.3 … +3.7) |
+| *in-sample best rule, fixed* | *+0.0* | *+2.4* | *+3.5* |
+
+Lag 2 gives the same picture (2 h: −1.2 to +0.3 k; 4 h: +0.4 to +1.1 k). A walk-forward trader keeps only
+15–37 % of the in-sample best rule's gain at 4 h and none at 1–2 h (except +0.3 k with an expanding window at 2 h). Every CI includes zero. Trailing windows
+switch rules 20–59 times a year (figure 5, right), which is a sign of chasing noise.
+
+![Rule validation](figures/05_rule_validation.png)
+
+**Conclusion.** The bidding study's fixes are real: the base stack's −6 to −9 k EUR/MW loss disappears under
+every calibrated rule. The *gain* over DA + FCR is not robust. It does not survive a search-corrected test
+or a non-anticipative rule choice. **Ex-ante DA + FCR remains the defensible realisable strategy for this
+year.** On top of it, aFRR capacity is worth somewhere between −1 and +4 k EUR/MW/yr to a simple history-based
+bidder, which cannot be told apart from zero. A second year of auctions would be the proper out-of-sample test.
 
 ## Method
 
@@ -164,11 +213,12 @@ python scripts/fetch_data.py reserve
 python scripts/run_backtest.py
 python scripts/make_figures.py
 python scripts/run_bid_study.py  # bidding study (~30 s on 8 cores, needs the fetched reserve data)
-python -m pytest -q            # 19 tests, synthetic inputs, no data needed
+python scripts/run_rule_validation.py  # SPA test + walk-forward rule choice (~5 s, committed daily table only)
+python -m pytest -q            # 23 tests, synthetic inputs, no data needed
 ```
 Outputs: `results/summary.json` (all headline numbers), `results/annual_eur_per_mw.csv`,
 `results/daily_results.csv.gz` (per day × strategy × case), `results/ex_ante_reserve_allocation.csv`,
-`results/sensitivity_2h.csv`, `results/bid_study_*.csv`. A CI example is in `docs/ci_example.yml`.
+`results/sensitivity_2h.csv`, `results/bid_study_*.csv`, `results/rule_validation_*`. A CI example is in `docs/ci_example.yml`.
 
 ## Repository layout
 ```
@@ -176,9 +226,11 @@ src/stack/data.py       Energy-Charts + regelleistung.net download and parsing
 src/stack/model.py      daily LP (DA + FCR + aFRR), settlement, pay-as-bid bid rule
 src/stack/backtest.py   PF and ex-ante strategies over the year
 src/stack/bidding.py    ex-ante bidding diagnostics (calibration, selection bias) and alternative rules
+src/stack/selection.py  Hansen SPA / Reality Check test and walk-forward rule selection
 scripts/                fetch, backtest + sensitivity grid, figures, run_all.sh
-tests/                  19 pytest checks (energy balance, headroom, dominance, DST, parsing, PF ≥ ex-ante,
-                        bidding rules: non-anticipative calibration, reproduction of the base backtest)
+tests/                  23 pytest checks (energy balance, headroom, dominance, DST, parsing, PF ≥ ex-ante,
+                        bidding rules: non-anticipative calibration, reproduction of the base backtest;
+                        walk-forward selection uses no future rows, SPA size/power)
 ```
 
 ## Limitations
@@ -196,6 +248,14 @@ tests/                  19 pytest checks (energy balance, headroom, dominance, D
 * **Prequalification rules are simplified** (`e_FCR`, `e_aFRR`, symmetric FCR in 4-h blocks, aFRR in 4-h
   products from the German results). Check the current TSO product terms before relying on any number.
 * **One year**, on prices from an unusual year: FCR prices rose steeply in spring 2026. No inference beyond it.
+
+## References
+* Hansen, P. R. (2005). A Test for Superior Predictive Ability. *Journal of Business & Economic Statistics*
+  23(4), 365–380. https://doi.org/10.1198/073500105000000063
+* White, H. (2000). A Reality Check for Data Snooping. *Econometrica* 68(5), 1097–1126.
+  https://doi.org/10.1111/1468-0262.00152
+* Politis, D. N., Romano, J. P. (1994). The Stationary Bootstrap. *Journal of the American Statistical
+  Association* 89(428), 1303–1313. https://doi.org/10.1080/01621459.1994.10476870
 
 ## License
 Code: MIT © 2026 DataWithSyed (see `LICENSE`). Day-ahead price data: CC BY 4.0, Energy-Charts /

@@ -271,5 +271,124 @@
         "mean_fc_error": -1.022
       }
     ]
+  },
+  "rule_validation": {
+    "reference": "xa_da_fcr (base)",
+    "insample_best": "stack, quantile 90 % + FCR 7-day + recal.",
+    "spa_mean_block_7": {
+      "1.0": {
+        "p_spa_c": 0.659,
+        "p_reality_check": 0.8935,
+        "p_best_alone_no_search": 0.4545
+      },
+      "2.0": {
+        "p_spa_c": 0.1555,
+        "p_reality_check": 0.218,
+        "p_best_alone_no_search": 0.069
+      },
+      "4.0": {
+        "p_spa_c": 0.1205,
+        "p_reality_check": 0.13,
+        "p_best_alone_no_search": 0.0345
+      }
+    },
+    "walk_forward_lag1": {
+      "1.0|28": {
+        "total": 150066.0,
+        "diff_vs_da_fcr": -457.0,
+        "ci95": [
+          -1571.0,
+          636.0
+        ]
+      },
+      "1.0|56": {
+        "total": 149895.0,
+        "diff_vs_da_fcr": -628.0,
+        "ci95": [
+          -1724.0,
+          370.0
+        ]
+      },
+      "1.0|91": {
+        "total": 150150.0,
+        "diff_vs_da_fcr": -374.0,
+        "ci95": [
+          -1058.0,
+          280.0
+        ]
+      },
+      "1.0|expanding": {
+        "total": 149839.0,
+        "diff_vs_da_fcr": -684.0,
+        "ci95": [
+          -1592.0,
+          169.0
+        ]
+      },
+      "2.0|28": {
+        "total": 156318.0,
+        "diff_vs_da_fcr": -488.0,
+        "ci95": [
+          -2713.0,
+          1851.0
+        ]
+      },
+      "2.0|56": {
+        "total": 155892.0,
+        "diff_vs_da_fcr": -914.0,
+        "ci95": [
+          -2442.0,
+          471.0
+        ]
+      },
+      "2.0|91": {
+        "total": 155709.0,
+        "diff_vs_da_fcr": -1097.0,
+        "ci95": [
+          -2490.0,
+          105.0
+        ]
+      },
+      "2.0|expanding": {
+        "total": 157141.0,
+        "diff_vs_da_fcr": 335.0,
+        "ci95": [
+          -1514.0,
+          2177.0
+        ]
+      },
+      "4.0|28": {
+        "total": 172805.0,
+        "diff_vs_da_fcr": 1301.0,
+        "ci95": [
+          -1345.0,
+          3942.0
+        ]
+      },
+      "4.0|56": {
+        "total": 172025.0,
+        "diff_vs_da_fcr": 521.0,
+        "ci95": [
+          -1685.0,
+          2472.0
+        ]
+      },
+      "4.0|91": {
+        "total": 172350.0,
+        "diff_vs_da_fcr": 847.0,
+        "ci95": [
+          -1182.0,
+          2810.0
+        ]
+      },
+      "4.0|expanding": {
+        "total": 172760.0,
+        "diff_vs_da_fcr": 1257.0,
+        "ci95": [
+          -1298.0,
+          3668.0
+        ]
+      }
+    }
   }
 }

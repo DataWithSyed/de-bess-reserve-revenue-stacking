@@ -1,0 +1,7 @@
+duration_h,mean_block_days,n_rules,best_rule,best_diff_eur,t_spa,p_spa_c,p_spa_l,p_reality_check,p_best_alone_no_search
+1.0000,7.0000,9,"stack, quantile 90 % + FCR 7-day + recal.",26.2980,0.0398,0.6590,0.5150,0.8935,0.4545
+1.0000,14.0000,9,"stack, quantile 90 % + FCR 7-day + recal.",26.2980,0.0361,0.7805,0.5010,0.8780,0.4525
+2.0000,7.0000,9,"stack, quantile 90 % + FCR 7-day + recal.",2449.0780,1.5642,0.1555,0.0970,0.2180,0.0690
+2.0000,14.0000,9,"stack, quantile 90 % + FCR 7-day + recal.",2449.0780,1.3824,0.2600,0.1270,0.2800,0.0990
+4.0000,7.0000,9,"stack, quantile 90 % + FCR 7-day + recal.",3472.5190,1.8498,0.1205,0.0875,0.1300,0.0345
+4.0000,14.0000,9,"stack, quantile 90 % + FCR 7-day + recal.",3472.5190,1.6194,0.1745,0.1285,0.1890,0.0670
